@@ -7,6 +7,7 @@ public class MainPage : ContentPage
     Entry lEntry;
     Button lTranslateButton;
     Button lCallButton;
+    string gTranslatedNumber;
 
     public MainPage()
     {
@@ -54,16 +55,29 @@ public class MainPage : ContentPage
         this.Content = mainStackLayout;
 
         lTranslateButton.Clicked += LTranslateButton_Clicked;
+        lCallButton.Clicked += LCallButton_Clicked;
+    }
+
+    private async void LCallButton_Clicked(object sender, EventArgs e)
+    {
+        if(await this.DisplayAlert("Dial A Number", "Would you like to call " + gTranslatedNumber + "?", "Yes", "No"))
+        {
+            var dialer = DependencyService.Get<PhoneWord.IDialer>();
+            if (dialer != null)
+            {
+                dialer.DialAsync(gTranslatedNumber);
+            }
+        }
     }
 
     private void LTranslateButton_Clicked(object sender, EventArgs e)
     {
         string lInputString = lEntry.Text;
-        string translatedNumber = Core.PhoneNumberTranslator.ToNumber(lInputString);
+        gTranslatedNumber = Core.PhoneNumberTranslator.ToNumber(lInputString);
 
-        if(!String.IsNullOrEmpty(translatedNumber))
+        if(!String.IsNullOrEmpty(gTranslatedNumber))
         {
-            lCallButton.Text = "Call " + translatedNumber;
+            lCallButton.Text = "Call " + gTranslatedNumber;
             lCallButton.IsEnabled = true;
         }
         else
